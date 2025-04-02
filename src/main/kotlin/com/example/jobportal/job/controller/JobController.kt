@@ -29,10 +29,15 @@ class JobController(private val jobService: JobService) {
     }
 
     @PostMapping("/update")
-    fun updateJob(@RequestBody job: Job): ResponseEntity<String> {
+    fun updateJob(@RequestBody job: Job): ResponseEntity<Map<String, Any>> {
         val success = jobService.updateJob(job)
-        return if (success) ResponseEntity.ok("Job updated successfully") else ResponseEntity.badRequest().body("Job not found")
+        return if (success) {
+            ResponseEntity.ok(mapOf("success" to true, "message" to "Job updated successfully"))
+        } else {
+            ResponseEntity.badRequest().body(mapOf("success" to false, "message" to "Job not found"))
+        }
     }
+
 
     @DeleteMapping("/delete/{id}")
     fun deleteJob(@PathVariable id: String): ResponseEntity<String> {
