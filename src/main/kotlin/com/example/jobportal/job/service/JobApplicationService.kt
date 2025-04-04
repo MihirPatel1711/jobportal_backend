@@ -8,40 +8,40 @@ import java.util.UUID
 @Service
 class JobApplicationService(private val jobApplicationRepository: JobApplicationRepository) {
 
-    fun applyForJob(
-        jobId: String,
-        applicantId: String,
-        firstname: String,
-        lastname: String,
-        phoneNumber: String,
-        resume: String,
-        expectedSalary: Double?,
-        availabilityToJoin: String,
-        portfolioLink: String?,
-        additionalComments: String?
-    ): JobApplication {
-        val id = UUID.randomUUID().toString()
-        val appliedAt = System.currentTimeMillis()
+        fun applyForJob(
+            jobId: String,
+            applicantId: String,
+            firstname: String,
+            lastname: String,
+            phoneNumber: String,
+            resume: String,
+            expectedSalary: Double?,
+            availabilityToJoin: String,
+            portfolioLink: String?,
+            additionalComments: String?
+        ): JobApplication {
+            val id = UUID.randomUUID().toString()
+            val appliedAt = System.currentTimeMillis()
 
-        val application = JobApplication(
-            id = id,
-            jobId = jobId,
-            applicantId = applicantId,
-            firstname = firstname,
-            lastname = lastname,
-            phoneNumber = phoneNumber,
-            resume = resume,
-            expectedSalary = expectedSalary,
-            availabilityToJoin = availabilityToJoin,
-            portfolioLink = portfolioLink,
-            additionalComments = additionalComments,
-            status = "PENDING",
-            appliedAt = appliedAt
-        )
+            val application = JobApplication(
+                id = id,
+                jobId = jobId,
+                applicantId = applicantId,
+                firstname = firstname,
+                lastname = lastname,
+                phoneNumber = phoneNumber,
+                resume = resume,
+                expectedSalary = expectedSalary,
+                availabilityToJoin = availabilityToJoin,
+                portfolioLink = portfolioLink,
+                additionalComments = additionalComments,
+                status = "PENDING",
+                appliedAt = appliedAt
+            )
 
-        jobApplicationRepository.createJobApplication(application)
-        return application
-    }
+            jobApplicationRepository.createJobApplication(application)
+            return application
+        }
 
     fun getApplicationById(id: String): JobApplication? {
         return jobApplicationRepository.getApplicationById(id)
@@ -57,5 +57,13 @@ class JobApplicationService(private val jobApplicationRepository: JobApplication
 
     fun deleteApplication(id: String): Boolean {
         return jobApplicationRepository.deleteApplication(id)
+    }
+
+    fun listAllApplications(): List<JobApplication> {
+        return jobApplicationRepository.listAllApplications()
+    }
+
+    fun getApplicantsForEmployer(employerId: String): List<JobApplication> {
+        return jobApplicationRepository.findApplicantsByEmployerId(employerId)
     }
 }

@@ -42,7 +42,7 @@ class AuthService(
         val user = authRepository.findByUsername(username) ?: return null
         if (!passwordEncoder.matches(password, user.password)) return null
 
-        val accessToken = jwtUtil.generateAccessToken(user.username, user.role)
+        val accessToken = jwtUtil.generateAccessToken(user.username, user.role, user.id)
         val refreshToken = jwtUtil.generateRefreshToken(user.username)
 
         val refreshTokenId = UUID.randomUUID().toString()
@@ -62,7 +62,7 @@ class AuthService(
 
         val user = authRepository.findById(storedToken.userId) ?: return null
 
-        return jwtUtil.generateAccessToken(user.username, user.role)
+        return jwtUtil.generateAccessToken(user.username, user.role, user.id)
     }
 
 

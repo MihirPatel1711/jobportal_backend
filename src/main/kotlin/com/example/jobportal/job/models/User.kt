@@ -3,7 +3,7 @@ package com.example.jobportal.models
 import java.util.*
 
 data class User(
-    val id: String? = null,
+    val id: String,
     val firstname: String,
     val lastname: String,
     val username: String, // Auto-generated from firstname & lastname

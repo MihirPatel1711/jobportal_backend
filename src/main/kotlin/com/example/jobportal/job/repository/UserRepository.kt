@@ -33,28 +33,28 @@ class UserRepository(private val jdbcTemplate: JdbcTemplate) {
         return jdbcTemplate.query("SELECT * FROM users WHERE username = ?", rowMapper, username).firstOrNull()
     }
 
-    fun listUsers(search: String?, page: Int, size: Int, getAll: Boolean): List<User> {
-        val params = mutableListOf<Any>()
-        val sqlBuilder = StringBuilder("SELECT * FROM users WHERE role IN ('USER', 'ADMIN')")
+                fun listUsers(search: String?, page: Int, size: Int, getAll: Boolean): List<User> {
+                    val params = mutableListOf<Any>()
+                    val sqlBuilder = StringBuilder("SELECT * FROM users WHERE role IN ('USER', 'ADMIN')")
 
-        // ✅ Apply search filter only if search is provided
-        search?.trim()?.takeIf { it.isNotEmpty() }?.let {
-            sqlBuilder.append(" AND (LOWER(firstname) LIKE ? OR LOWER(lastname) LIKE ? OR LOWER(email) LIKE ?)")
-            val searchTerm = "%${it.lowercase()}%"
-            params.addAll(listOf(searchTerm, searchTerm, searchTerm))
-        }
+                    // ✅ Apply search filter only if search is provided
+                    search?.trim()?.takeIf { it.isNotEmpty() }?.let {
+                        sqlBuilder.append(" AND (LOWER(firstname) LIKE ? OR LOWER(lastname) LIKE ? OR LOWER(email) LIKE ?)")
+                        val searchTerm = "%${it.lowercase()}%"
+                        params.addAll(listOf(searchTerm, searchTerm, searchTerm))
+                    }
 
-        // ✅ Apply pagination only if `getAll` is false
-        if (!getAll) {
-            sqlBuilder.append(" ORDER BY created_at DESC LIMIT ? OFFSET ?")
-            val offset = (page - 1) * size
-            params.addAll(listOf(size, offset))
-        } else {
-            sqlBuilder.append(" ORDER BY created_at DESC") // Ensure sorting even when `getAll` is true
-        }
+                    // ✅ Apply pagination only if `getAll` is false
+                    if (!getAll) {
+                        sqlBuilder.append(" ORDER BY created_at DESC LIMIT ? OFFSET ?")
+                        val offset = (page - 1) * size
+                        params.addAll(listOf(size, offset))
+                    } else {
+                        sqlBuilder.append(" ORDER BY created_at DESC") // Ensure sorting even when `getAll` is true
+                    }
 
-        return jdbcTemplate.query(sqlBuilder.toString(), rowMapper, *params.toTypedArray())
-    }
+                    return jdbcTemplate.query(sqlBuilder.toString(), rowMapper, *params.toTypedArray())
+                }
 
 
     fun updateUser(user: User): Boolean {

@@ -63,4 +63,25 @@ class JobApplicationRepository(private val jdbcTemplate: JdbcTemplate) {
     fun deleteApplication(id: String): Boolean {
         return jdbcTemplate.update("DELETE FROM job_applications WHERE id = ?", id) > 0
     }
+
+    fun listAllApplications(): List<JobApplication> {
+        return jdbcTemplate.query(
+            "SELECT * FROM job_applications ORDER BY applied_at DESC",
+            rowMapper
+        )
+    }
+
+    /**
+     * 🔥 Fetch all applicants for jobs posted by a specific employer.
+     * ✅ Uses a JOIN to match applications to jobs where `posted_by = employerId`
+     */
+    fun findApplicantsByEmployerId(employerId: String): List<JobApplication> {
+        val sql = """
+            SELECT ja.* FROM job_applications ja
+            JOIN jobs j ON ja.job_id = j.id
+            WHERE j.posted_by = ?   
+            ORDER BY ja.applied_at DESC
+        """
+        return jdbcTemplate.query(sql, rowMapper, employerId)
+    }
 }
