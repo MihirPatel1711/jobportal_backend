@@ -17,7 +17,18 @@ class AuthService(
     private val jwtUtil: JwtUtil
 ) {
 
-    fun registerUser(firstname: String, lastname: String, password: String, email: String, phoneNumber: String, role: String): User {
+    fun registerUser(
+        firstname: String,
+        lastname: String,
+        password: String,
+        email: String,
+        phoneNumber: String,
+        userType: String,
+        companyName: String? = null,
+        companyWebsite: String? = null,
+        industry: String? = null,
+        companyLocation: String? = null
+    ): User {
         val id = UUID.randomUUID().toString()
         val username = generateUsername(firstname, lastname)
         val hashedPassword = passwordEncoder.encode(password)
@@ -31,9 +42,14 @@ class AuthService(
             password = hashedPassword,
             email = email,
             phoneNumber = phoneNumber,
-            role = role,
+            userType = userType,
+            companyName = companyName,
+            companyWebsite = companyWebsite,
+            industry = industry,
+            companyLocation = companyLocation,
             createdAt = createdAt
         )
+
         authRepository.save(user)
         return user
     }
@@ -42,30 +58,29 @@ class AuthService(
         val user = authRepository.findByUsername(username) ?: return null
         if (!passwordEncoder.matches(password, user.password)) return null
 
-        val accessToken = jwtUtil.generateAccessToken(user.username, user.role, user.id)
+        val accessToken = jwtUtil.generateAccessToken(user.username, user.id , user.userType,)
         val refreshToken = jwtUtil.generateRefreshToken(user.username)
 
         val refreshTokenId = UUID.randomUUID().toString()
         val expiresAt = System.currentTimeMillis() + (1000 * 60 * 60 * 24 * 7) // 7 days expiry
 
-        authRepository.saveRefreshToken(RefreshToken(refreshTokenId, user.id.toString(), refreshToken, expiresAt, System.currentTimeMillis()))
+        authRepository.saveRefreshToken(
+            RefreshToken(refreshTokenId, user.id.toString(), refreshToken, expiresAt, System.currentTimeMillis())
+        )
 
         return AuthResponse(accessToken, refreshToken)
     }
 
-
     fun refreshAccessToken(request: RefreshTokenRequest): String? {
-        if (request.refreshToken.isBlank()) return null  // ✅ Ensure `refreshToken` is provided
+        if (request.refreshToken.isBlank()) return null
 
         val storedToken = authRepository.findRefreshToken(request.refreshToken) ?: return null
-        if (storedToken.expiresAt < System.currentTimeMillis()) return null // ✅ Token expired
+        if (storedToken.expiresAt < System.currentTimeMillis()) return null
 
         val user = authRepository.findById(storedToken.userId) ?: return null
 
-        return jwtUtil.generateAccessToken(user.username, user.role, user.id)
+        return jwtUtil.generateAccessToken(user.username, user.userType, user.id)
     }
-
-
 
     fun revokeRefreshToken(refreshToken: String): Boolean {
         return authRepository.deleteRefreshToken(refreshToken)

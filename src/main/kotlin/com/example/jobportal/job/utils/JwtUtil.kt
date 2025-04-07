@@ -22,11 +22,11 @@ class JwtUtil {
     }
 
     // Generate Access Token
-    fun generateAccessToken(username: String, role: String, id: String): String {
+    fun generateAccessToken(username: String, userId: String, userType: String): String {
         return Jwts.builder()
             .subject(username)
-            .claim("role", role)
-            .claim("user_id", id)
+            .claim("user_id", userId)
+            .claim("user_type", userType)
             .issuedAt(Date())
             .expiration(Date(System.currentTimeMillis() + 1000 * 60 * 15)) // 15 min expiry
             .signWith(secretKey)
@@ -67,8 +67,15 @@ class JwtUtil {
 
     fun extractUserId(token: String): String? {
         return try {
-            val claims = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).payload
-            claims["user_id"] as? String
+            getClaims(token, false)["user_id"] as? String
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    fun extractUserType(token: String): String? {
+        return try {
+            getClaims(token, false)["user_type"] as? String
         } catch (e: Exception) {
             null
         }

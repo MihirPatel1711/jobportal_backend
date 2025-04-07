@@ -15,8 +15,25 @@ class AuthController(private val authService: AuthService) {
 
     @PostMapping("/register")
     fun register(@RequestBody request: RegisterRequest): ResponseEntity<Map<String, String>> {
-        val user = authService.registerUser(request.firstname, request.lastname, request.password, request.email, request.phoneNumber, request.role.toString())
-        return ResponseEntity.ok(mapOf("message" to "User registered successfully!", "username" to user.username))
+        val user = authService.registerUser(
+            firstname = request.firstname,
+            lastname = request.lastname,
+            password = request.password,
+            email = request.email,
+            phoneNumber = request.phoneNumber,
+            userType = request.userType,
+            companyName = request.companyName,
+            companyWebsite = request.companyWebsite,
+            industry = request.industry,
+            companyLocation = request.companyLocation
+        )
+
+        return ResponseEntity.ok(
+            mapOf(
+                "message" to "User registered successfully!",
+                "username" to user.username
+            )
+        )
     }
 
     @PostMapping("/login")
@@ -34,8 +51,6 @@ class AuthController(private val authService: AuthService) {
             ResponseEntity.status(401).body(mapOf("error" to "Invalid or expired refresh token"))
         }
     }
-
-
 
     @PostMapping("/logout")
     fun logout(@RequestBody request: RefreshTokenRequest): ResponseEntity<String> {

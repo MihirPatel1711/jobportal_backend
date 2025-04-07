@@ -18,7 +18,11 @@ class AuthRepository(private val jdbcTemplate: JdbcTemplate) {
             password = rs.getString("password"),
             email = rs.getString("email"),
             phoneNumber = rs.getString("phone_number"),
-            role = rs.getString("role"),
+            userType = rs.getString("user_type"),
+            companyName = rs.getString("company_name"),
+            companyWebsite = rs.getString("company_website"),
+            industry = rs.getString("industry"),
+            companyLocation = rs.getString("company_location"),
             createdAt = rs.getLong("created_at")
         )
     }
@@ -35,9 +39,24 @@ class AuthRepository(private val jdbcTemplate: JdbcTemplate) {
 
     fun save(user: User) {
         jdbcTemplate.update(
-            "INSERT INTO users (id, firstname, lastname, username, password, email, phone_number, role, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            user.id, user.firstname, user.lastname, user.username, user.password,
-            user.email, user.phoneNumber, user.role, user.createdAt
+            """
+            INSERT INTO users 
+            (id, firstname, lastname, username, password, email, phone_number, user_type, company_name, company_website, industry, company_location, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """.trimIndent(),
+            user.id,
+            user.firstname,
+            user.lastname,
+            user.username,
+            user.password,
+            user.email,
+            user.phoneNumber,
+            user.userType,
+            user.companyName,
+            user.companyWebsite,
+            user.industry,
+            user.companyLocation,
+            user.createdAt
         )
     }
 
